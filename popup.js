@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	var dropdown = document.getElementById('dropdown');
 	var checkbox = document.getElementById('checkbox');
 	var number = document.getElementById('number');
-	var debug = document.getElementById('debug');
+	var text = document.getElementById('text');
 	var activeTab = null;
 	var allTabs = null;
 	var bg = chrome.extension.getBackgroundPage();
@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		if (state.tabCycleIsActive) checkbox.checked = true;
 		number.value = state.tabCycleIntervalSeconds;
+		text.value = state.webSocketURL;
 
 		chrome.tabs.getSelected(null, (tab) => {
 			activeTab = tab;
@@ -56,6 +57,15 @@ document.addEventListener('DOMContentLoaded', () => {
 				method: 'setTabCycleIntervalSeconds',
 				props: {
 					seconds: number.value
+				}
+			});
+		};
+
+		text.onchange = (e) => {
+			tabBossAPI({
+				method: 'setTabBossWebSocketURL',
+				props: {
+					webSocketURL: text.value
 				}
 			});
 		};

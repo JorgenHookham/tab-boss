@@ -17,8 +17,11 @@ class TabBoss {
 		let that = this;
 		this.initPromise.then((localStorage) => {
 			that.setState(Object.assign(that.defaultState(), localStorage.tabBossConfig, {initialized: true}));
+			this.exposeAPI();
+			if (this.state.webSocketURL) {
+				this.connectWebSocket();
+			}
 		});
-		this.exposeAPI();
 		return this.initPromise;
 	}
 
@@ -67,6 +70,8 @@ class TabBoss {
 			}
 		} else if (this.state.tabCycleIsActive && newState.tabCycleIntervalSeconds && newState.tabCycleIntervalSeconds != oldState.tabCycleIntervalSeconds) {
 			this.restartTabCycle()
+		} else if (this.state.webSocketURL && newState.webSocketURL != oldState.webSocketURL) {
+			this.connectWebSocket()
 		}
 		this.setLocalConfig();
 	}
@@ -85,7 +90,7 @@ class TabBoss {
 	}
 
 	setLocalConfig () {
-		let persistentAttributes = ['enableOnStartup', 'tabCycleIntervalSeconds'];
+		let persistentAttributes = ['enableOnStartup', 'tabCycleIntervalSeconds', 'webSocketURL'];
 		let newConfig = {};
 		persistentAttributes.forEach((attr) => {
 			newConfig[attr] = this.state[attr];
@@ -93,20 +98,35 @@ class TabBoss {
 		chrome.storage.sync.set({tabBossConfig: newConfig});
 	}
 
+	connectWebSocket () {
+		if (this.webSocket) this.webSocket.close();
+		this.webSocket = new WebSocket(this.state.webSocketURL);
+		this.webSocket.onmessage = (message) => {
+			console.log(message.data);
+		};
+	}
+
 	// Tab Boss API
 
 	exposeAPI () {
 		chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+
 			if (request.method == 'getTabBossState') {
-					sendResponse(this.state);
+				sendResponse(this.state);
+
 			} else if (request.method == 'setTabCycleActive') {
-					tabBoss.setState({tabCycleIsActive: request.props.isActive});
-					sendResponse(this.state.tabCycleIsActive);
+				tabBoss.setState({tabCycleIsActive: request.props.isActive});
+				sendResponse(this.state.tabCycleIsActive);
+
 			} else if (request.method == 'setTabCycleIntervalSeconds') {
-					let seconds = request.props.seconds;
-					tabBoss.setState({tabCycleIntervalSeconds: parseInt(seconds)});
-					sendResponse(this.state.tabCycleIntervalSeconds)
-				}
+				let seconds = request.props.seconds;
+				tabBoss.setState({tabCycleIntervalSeconds: parseInt(seconds)});
+				sendResponse(this.state.tabCycleIntervalSeconds)
+
+			} else if (request.method == 'setTabBossWebSocketURL') {
+				tabBoss.setState({webSocketURL: request.props.webSocketURL});
+				sendResponse(this.state.webSocketURL);
+			}
 		});
 	}
 
