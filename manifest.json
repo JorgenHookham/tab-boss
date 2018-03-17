@@ -22,6 +22,7 @@
 		"css": ["notifications.css"]
 	}],
 	"web_accessible_resources": [
-		"coin.wav"
+		"coin.wav",
+		"swanson.gif"
 	]
 }

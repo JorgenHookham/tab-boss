@@ -4,35 +4,46 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 999999999999999999;
+}
+
+#tab-boss-swanson {
+    width: 320px;
+    margin-bottom: .5rem;
 }
 
 #tab-boss-notification {
-    padding: .25rem 3rem;
-    background: rgba(0, 0, 0, .48);
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem;
+    width: 320px;
+    padding-bottom: .5rem;
+    background: rgba(0, 0, 0, .8);
     color: white;
-    font-size: 32px;
+    font-size: 24px;
     font-family: helvetica;
     animation-name: notification;
     animation-duration: 10s;
     animation-iteration-count: 1;
+    animation-timing-function: linear;
+    text-align: center;
     opacity: 0;
 }
 
 @keyframes notification {
     0% {
-        transform: scale(2);
+        transform: scale(.5);
         opacity: 0;
     }
-    5% {
-        transform: scale(1);
+    1% {
         opacity: 1;
-    }
-    95% {
         transform: scale(1);
+    }
+    90% {
         opacity: 1;
     }
     100% {
-        transform: scale(2);
+        transform: scale(1) translateX(100vw);
         opacity: 0;
     }
 }

@@ -101,14 +101,23 @@ class TabBoss {
 	connectWebSocket () {
 		if (this.webSocket) this.webSocket.close();
 		this.webSocket = new WebSocket(this.state.webSocketURL);
-		this.webSocket.onmessage = (message) => {
-			chrome.tabs.getSelected(null, (tab) => {
+		this.webSocket.onmessage = this.pushTabNotification;
+	}
+
+	pushTabNotification (message)  {
+		chrome.tabs.getSelected(null, (tab) => {
+			chrome.tabs.sendMessage(tab.id, {
+				type: 'sound'
+			});
+		});
+		chrome.tabs.getAllInWindow(null, (tabs) => {
+			tabs.forEach((tab) => {
 				chrome.tabs.sendMessage(tab.id, {
 					type: 'notification',
 					message: message.data
-				});
+				})
 			});
-		};
+		});
 	}
 
 	// Tab Boss API
