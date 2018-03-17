@@ -102,7 +102,12 @@ class TabBoss {
 		if (this.webSocket) this.webSocket.close();
 		this.webSocket = new WebSocket(this.state.webSocketURL);
 		this.webSocket.onmessage = (message) => {
-			console.log(message.data);
+			chrome.tabs.getSelected(null, (tab) => {
+				chrome.tabs.sendMessage(tab.id, {
+					type: 'notification',
+					message: message.data
+				});
+			});
 		};
 	}
 
@@ -110,6 +115,8 @@ class TabBoss {
 
 	exposeAPI () {
 		chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+
+			if (request.type != 'API') return false;
 
 			if (request.method == 'getTabBossState') {
 				sendResponse(this.state);

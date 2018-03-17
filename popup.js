@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		);
 	};
 
-	tabBossAPI({method: 'getTabBossState'}).then((state) => {
+	tabBossAPI({type: 'API', method: 'getTabBossState'}).then((state) => {
 
 		if (state.tabCycleIsActive) checkbox.checked = true;
 		number.value = state.tabCycleIntervalSeconds;
@@ -44,6 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	checkbox.onchange = (e) => {
 		tabBossAPI({
+			type: 'API',
 			method: 'setTabCycleActive',
 			props: {
 				isActive: checkbox.checked
@@ -53,6 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	number.onchange = (e) => {
 		tabBossAPI({
+			type: 'API',
 			method: 'setTabCycleIntervalSeconds',
 			props: {
 				seconds: number.value
@@ -62,6 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	text.onchange = (e) => {
 		tabBossAPI({
+			type: 'API',
 			method: 'setTabBossWebSocketURL',
 			props: {
 				webSocketURL: text.value

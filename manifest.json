@@ -15,5 +15,13 @@
 	],
 	"background": {
 		"page": "background.html"
-	}
+	},
+	"content_scripts": [{
+		"matches": ["http://*/*", "https://*/*"],
+		"js": ["notifications.js"],
+		"css": ["notifications.css"]
+	}],
+	"web_accessible_resources": [
+		"coin.wav"
+	]
 }
