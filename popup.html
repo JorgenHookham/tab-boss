@@ -5,46 +5,46 @@
  value "popup.html".
  -->
 <html>
-  <head>
-    <title>Tab Boss</title>
-    <style type="text/css">
-      body {
-        margin: 10px;
-        white-space: nowrap;
-      }
+	<head>
+		<title>Tab Boss</title>
+		<style type="text/css">
+			body {
+				margin: 10px;
+				white-space: nowrap;
+			}
 
-      h1 {
-        font-size: 15px;
-      }
+			h1 {
+				font-size: 15px;
+			}
 
-      #container {
-        align-items: center;
-        display: flex;
-        justify-content: space-between;
-      }
-    </style>
+			#container {
+				align-items: center;
+				display: flex;
+				justify-content: space-between;
+			}
+		</style>
 
-    <!--
-      - JavaScript and HTML must be in separate files: see our Content Security
-      - Policy documentation[1] for details and explanation.
-      -
-      - [1]: https://developer.chrome.com/extensions/contentSecurityPolicy
-    -->
-    <script src="popup.js"></script>
-  </head>
+		<!--
+			- JavaScript and HTML must be in separate files: see our Content Security
+			- Policy documentation[1] for details and explanation.
+			-
+			- [1]: https://developer.chrome.com/extensions/contentSecurityPolicy
+		-->
+		<script src="popup.js"></script>
+	</head>
 
-  <body>
-    <h1>Tab Boss</h1>
-    <div id="container">
-      <span style="margin-right: 1rem;">Pick a tab</span>
-      <select style="margin-right: 1rem; max-width: 240px;" id="dropdown"></select>
-      <input id="checkbox" type="checkbox">
-    </div>
-    <div>
-      <input style="width: 40px;" type="number" id="number">s
-    </div>
-    <div>
-      <input type="text" id="text">
-    </div>
-  </body>
+	<body>
+		<h1>Tab Boss</h1>
+		<div id="container">
+			<span style="margin-right: 1rem;">Pick a tab</span>
+			<select style="margin-right: 1rem; max-width: 240px;" id="dropdown"></select>
+			<input id="checkbox" type="checkbox">
+		</div>
+		<div>
+			<input style="width: 40px;" type="number" id="number">s
+		</div>
+		<div>
+			<input type="text" id="text">
+		</div>
+	</body>
 </html>
