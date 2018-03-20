@@ -1,5 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+	// Used to notify the background process of a popup being opened and closed.
+	var bgConnect = chrome.runtime.connect();
+
 	var select = document.getElementById('select');
 	var rotationInterval = document.getElementById('rotation-interval');
 	var rotationToggle = document.getElementById('rotation-toggle');

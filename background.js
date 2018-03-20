@@ -14,6 +14,7 @@ class TabBoss {
 		};
 		this.tabCycleIntervalID = null;
 		this.initPromise = this.getLocalConfig();
+		this.watchPopups();
 		let that = this;
 		this.initPromise.then((localStorage) => {
 			that.setState(Object.assign(that.defaultState(), localStorage.tabBossConfig, {initialized: true}));
@@ -62,15 +63,7 @@ class TabBoss {
 	}
 
 	stateDidChange (newState, oldState) {
-		if ('tabCycleIsActive' in newState && newState.tabCycleIsActive != oldState.tabCycleIsActive) {
-			if (newState.tabCycleIsActive) {
-				this.startTabCycle();
-			} else {
-				this.stopTabCycle();
-			}
-		} else if (this.state.tabCycleIsActive && newState.tabCycleIntervalSeconds && newState.tabCycleIntervalSeconds != oldState.tabCycleIntervalSeconds) {
-			this.restartTabCycle()
-		} else if (this.state.webSocketURL && newState.webSocketURL != oldState.webSocketURL) {
+		if (this.state.webSocketURL && newState.webSocketURL != oldState.webSocketURL) {
 			this.connectWebSocket()
 		}
 		this.setLocalConfig();
@@ -102,6 +95,19 @@ class TabBoss {
 		if (this.webSocket) this.webSocket.close();
 		this.webSocket = new WebSocket(this.state.webSocketURL);
 		this.webSocket.onmessage = this.pushTabNotification;
+	}
+
+	watchPopups () {
+		var that = this;
+		chrome.runtime.onConnect.addListener((port) => {
+			that.stopTabCycle();
+			port.onDisconnect.addListener(() => {
+				if (that.state.tabCycleIsActive) {
+					that.startTabCycle();
+					that.connectWebSocket();
+				}
+			});
+		});
 	}
 
 	pushTabNotification (message)  {
