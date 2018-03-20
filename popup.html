@@ -11,16 +11,28 @@
 			body {
 				margin: 10px;
 				white-space: nowrap;
+				width: 320px;
 			}
 
 			h1 {
 				font-size: 15px;
 			}
 
-			#container {
-				align-items: center;
+			.field {
 				display: flex;
+				align-items: center;
 				justify-content: space-between;
+				height: 24px;
+				margin-bottom: 12px;
+				overflow: hidden;
+			}
+
+			.field select {
+				max-width: 240px;
+			}
+
+			#socket-last-report {
+				font-style: italic;
 			}
 		</style>
 
@@ -35,16 +47,36 @@
 
 	<body>
 		<h1>Tab Boss</h1>
-		<div id="container">
-			<span style="margin-right: 1rem;">Pick a tab</span>
-			<select style="margin-right: 1rem; max-width: 240px;" id="dropdown"></select>
-			<input id="checkbox" type="checkbox">
+		<div class="field">
+			<label for="select">Pick a tab</label>
+			<select id="select"></select>
 		</div>
-		<div>
-			<input style="width: 40px;" type="number" id="number">s
+		<div class="field">
+			<label for="rotation-interval">Tab rotation interval (seconds)</label>
+			<input id="rotation-interval" type="number" style="width: 40px;">
 		</div>
-		<div>
-			<input type="text" id="text">
+		</div>
+		<div class="field">
+			<label for="rotation-toggle">Tab rotation toggle</label>
+			<input id="rotation-toggle" type="checkbox">
+		</div>
+		<div class="field">
+			<label for="socket-url">Socket URL</label>
+			<input id="socket-url" type="text">
+		</div>
+		</div>
+		<div class="field">
+			<label for="socket-secret">Socket secret</label>
+			<input id="socket-secret" type="password">
+		</div>
+		<div class="field">
+			<label for="socket-toggle">Socket toggle</label>
+			<input id="socket-toggle" type="checkbox">
+		</div>
+		</div>
+		<div class="field">
+			<label>Socket last report</label>
+			<span id="socket-last-report">...</span>
 		</div>
 	</body>
 </html>
