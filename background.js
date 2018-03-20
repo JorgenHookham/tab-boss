@@ -64,9 +64,15 @@ class TabBoss {
 
 	stateDidChange (newState, oldState) {
 		if (this.isSocketConfigured()) {
-			this.connectWebSocket();
+			if (
+				newState.webSocketURL != oldState.webSocketURL ||
+				newState.webSocketSecret != oldState.webSocketSecret ||
+				newState.webSocketIsActive != oldState.webSocketIsActive
+			) {
+				this.connectWebSocket();
+			}
 		} else if (this.webSocket) {
-			this.disconnectWebSocket()
+			this.disconnectWebSocket();
 		}
 		this.setLocalConfig();
 	}
@@ -99,9 +105,21 @@ class TabBoss {
 
 	connectWebSocket () {
 		if (this.webSocket) this.disconnectWebSocket();
+
 		this.webSocket = new WebSocket(this.state.webSocketURL);
-		this.webSocket.onmessage = this.pushTabNotification;
-		console.log(this.webSocket)
+
+		this.webSocket.onopen = () => {
+			this.webSocket.send(this.state.webSocketSecret);
+		};
+
+		this.webSocket.onmessage = (request) => {
+			let requestData = JSON.parse(request.data);
+			if (requestData.type == 'checkin') {
+				this.setState({webSocketLastCheckin: requestData.message});
+			} else {
+				this.pushTabNotification(requestData);
+			}
+		};
 	}
 
 	disconnectWebSocket () {
@@ -122,7 +140,7 @@ class TabBoss {
 		});
 	}
 
-	pushTabNotification (message)  {
+	pushTabNotification (requestData)  {
 		chrome.tabs.getSelected(null, (tab) => {
 			chrome.tabs.sendMessage(tab.id, {
 				type: 'sound'
@@ -132,7 +150,7 @@ class TabBoss {
 			tabs.forEach((tab) => {
 				chrome.tabs.sendMessage(tab.id, {
 					type: 'notification',
-					message: message.data
+					message: requestData.message
 				})
 			});
 		});

@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		rotationInterval.value = state.tabCycleIntervalSeconds;
 		socketURL.value = state.webSocketURL || '';
 		socketSecret.value = state.webSocketSecret || '';
+		socketLastReport.textContent = state.webSocketLastCheckin;
 
 	});
 
