@@ -16,6 +16,15 @@
 
 			h1 {
 				font-size: 15px;
+				padding: 12px 0 8px;
+				margin-bottom: 12px;
+				border-bottom: 1px solid #ccc;
+			}
+
+			h2 {
+				font-size: 12px;
+				padding: 8px 0 4px;
+				border-bottom: 1px solid #eee;
 			}
 
 			.field {
@@ -51,6 +60,7 @@
 			<label for="select">Pick a tab</label>
 			<select id="select"></select>
 		</div>
+		<h2>Tab Rotation</h2>
 		<div class="field">
 			<label for="rotation-interval">Tab rotation interval (seconds)</label>
 			<input id="rotation-interval" type="number" style="width: 40px;" />
@@ -60,8 +70,9 @@
 			<input id="rotation-toggle" type="checkbox">
 		</div>
 		<div class="field">
-			<p><em>Tab rotation paused while menu is open</em></p>
+			<p><em style="color: #888; font-size: .68rem;">Tab rotation paused while menu is open</em></p>
 		</div>
+		<h2>Web Socket</h2>
 		<div class="field">
 			<label for="socket-url">Socket URL</label>
 			<input id="socket-url" type="text" />
