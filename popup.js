@@ -1,11 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-	var dropdown = document.getElementById('dropdown');
-	var checkbox = document.getElementById('checkbox');
-	var number = document.getElementById('number');
-	var text = document.getElementById('text');
+	var select = document.getElementById('select');
+	var rotationInterval = document.getElementById('rotation-interval');
+	var rotationToggle = document.getElementById('rotation-toggle');
+	var socketURL = document.getElementById('socket-url');
+	var socketSecret = document.getElementById('socket-secret');
+	var socketToggle = document.getElementById('socket-toggle');
+	var socketLastReport = document.getElementById('socket-last-report');
 
-	function tabBossAPI (request) {
+	function queryTabBoss (request) {
 		return new Promise(
 			(resolve, reject) => {
 				chrome.runtime.sendMessage(request, (response) => {
@@ -15,11 +18,13 @@ document.addEventListener('DOMContentLoaded', () => {
 		);
 	};
 
-	tabBossAPI({type: 'API', method: 'getTabBossState'}).then((state) => {
+	queryTabBoss({type: 'API', method: 'getTabBossState'}).then((state) => {
 
-		if (state.tabCycleIsActive) checkbox.checked = true;
-		number.value = state.tabCycleIntervalSeconds;
-		text.value = state.webSocketURL;
+		if (state.tabCycleIsActive) rotationToggle.checked = true;
+		if (state.webSocketIsActive) socketToggle.checked = true;
+		rotationInterval.value = state.tabCycleIntervalSeconds;
+		socketURL.value = state.webSocketURL || '';
+		socketSecret.value = state.webSocketSecret || '';
 
 	});
 
@@ -34,40 +39,40 @@ document.addEventListener('DOMContentLoaded', () => {
 			option.textContent = tab.title;
 			option.value = tab.id;
 			option.selected = tab.id == activeTab.id;
-			dropdown.appendChild(option);
+			select.appendChild(option);
 		});
 	});
 
-	dropdown.onchange = (e) => {
-		chrome.tabs.update(parseInt(dropdown.value), {active: true});
+	select.onchange = (e) => {
+		chrome.tabs.update(parseInt(select.value), {active: true});
 	};
 
-	checkbox.onchange = (e) => {
-		tabBossAPI({
+	rotationToggle.onchange = (e) => {
+		queryTabBoss({
 			type: 'API',
 			method: 'setTabCycleActive',
 			props: {
-				isActive: checkbox.checked
+				isActive: rotationToggle.checked
 			}
 		});
 	};
 
-	number.onchange = (e) => {
-		tabBossAPI({
+	rotationInterval.onchange = (e) => {
+		queryTabBoss({
 			type: 'API',
 			method: 'setTabCycleIntervalSeconds',
 			props: {
-				seconds: number.value
+				seconds: rotationInterval.value
 			}
 		});
 	};
 
-	text.onchange = (e) => {
-		tabBossAPI({
+	socketURL.onchange = (e) => {
+		queryTabBoss({
 			type: 'API',
 			method: 'setTabBossWebSocketURL',
 			props: {
-				webSocketURL: text.value
+				webSocketURL: socketURL.value
 			}
 		});
 	};
