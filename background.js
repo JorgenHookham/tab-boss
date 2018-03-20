@@ -4,7 +4,8 @@ class TabBoss {
 		return {
 			enableOnStartup: false,
 			tabCycleIntervalSeconds: 10,
-			tabCycleIsActive: false
+			tabCycleIsActive: false,
+			webSocketIsActive: false
 		};
 	}
 
@@ -15,11 +16,10 @@ class TabBoss {
 		this.tabCycleIntervalID = null;
 		this.initPromise = this.getLocalConfig();
 		this.watchPopups();
-		let that = this;
 		this.initPromise.then((localStorage) => {
-			that.setState(Object.assign(that.defaultState(), localStorage.tabBossConfig, {initialized: true}));
+			this.setState(Object.assign(this.defaultState(), localStorage.tabBossConfig, {initialized: true}));
 			this.exposeAPI();
-			if (this.state.webSocketURL) {
+			if (this.isSocketConfigured()) {
 				this.connectWebSocket();
 			}
 		});
@@ -63,8 +63,10 @@ class TabBoss {
 	}
 
 	stateDidChange (newState, oldState) {
-		if (this.state.webSocketURL && newState.webSocketURL != oldState.webSocketURL) {
-			this.connectWebSocket()
+		if (this.isSocketConfigured()) {
+			this.connectWebSocket();
+		} else if (this.webSocket) {
+			this.disconnectWebSocket()
 		}
 		this.setLocalConfig();
 	}
@@ -83,7 +85,7 @@ class TabBoss {
 	}
 
 	setLocalConfig () {
-		let persistentAttributes = ['enableOnStartup', 'tabCycleIntervalSeconds', 'webSocketURL'];
+		let persistentAttributes = ['enableOnStartup', 'tabCycleIntervalSeconds', 'webSocketURL', 'webSocketSecret', 'webSocketIsActive'];
 		let newConfig = {};
 		persistentAttributes.forEach((attr) => {
 			newConfig[attr] = this.state[attr];
@@ -91,10 +93,20 @@ class TabBoss {
 		chrome.storage.sync.set({tabBossConfig: newConfig});
 	}
 
+	isSocketConfigured () {
+		return this.state.webSocketURL && this.state.webSocketSecret && this.state.webSocketIsActive;
+	}
+
 	connectWebSocket () {
-		if (this.webSocket) this.webSocket.close();
+		if (this.webSocket) this.disconnectWebSocket();
 		this.webSocket = new WebSocket(this.state.webSocketURL);
 		this.webSocket.onmessage = this.pushTabNotification;
+		console.log(this.webSocket)
+	}
+
+	disconnectWebSocket () {
+		this.webSocket.close();
+		this.webSocket = null;
 	}
 
 	watchPopups () {
@@ -130,24 +142,13 @@ class TabBoss {
 
 	exposeAPI () {
 		chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-
-			if (request.type != 'API') return false;
-
-			if (request.method == 'getTabBossState') {
+			if (request.type == 'API') {
+				if (request.method == 'get') {
 				sendResponse(this.state);
-
-			} else if (request.method == 'setTabCycleActive') {
-				tabBoss.setState({tabCycleIsActive: request.props.isActive});
-				sendResponse(this.state.tabCycleIsActive);
-
-			} else if (request.method == 'setTabCycleIntervalSeconds') {
-				let seconds = request.props.seconds;
-				tabBoss.setState({tabCycleIntervalSeconds: parseInt(seconds)});
-				sendResponse(this.state.tabCycleIntervalSeconds)
-
-			} else if (request.method == 'setTabBossWebSocketURL') {
-				tabBoss.setState({webSocketURL: request.props.webSocketURL});
-				sendResponse(this.state.webSocketURL);
+				} else if (request.method == 'set') {
+					tabBoss.setState(request.data);
+					sendResponse(this.state);
+				}
 			}
 		});
 	}

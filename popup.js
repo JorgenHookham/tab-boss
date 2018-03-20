@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	var socketSecret = document.getElementById('socket-secret');
 	var socketToggle = document.getElementById('socket-toggle');
 	var socketLastReport = document.getElementById('socket-last-report');
+	var statefulUIs = [rotationToggle, rotationInterval, socketURL, socketToggle, socketSecret];
 
 	function queryTabBoss (request) {
 		return new Promise(
@@ -21,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		);
 	};
 
-	queryTabBoss({type: 'API', method: 'getTabBossState'}).then((state) => {
+	queryTabBoss({type: 'API', method: 'get'}).then((state) => {
 
 		if (state.tabCycleIsActive) rotationToggle.checked = true;
 		if (state.webSocketIsActive) socketToggle.checked = true;
@@ -29,6 +30,26 @@ document.addEventListener('DOMContentLoaded', () => {
 		socketURL.value = state.webSocketURL || '';
 		socketSecret.value = state.webSocketSecret || '';
 
+	});
+
+	function getStateFromUI () {
+		return {
+			tabCycleIsActive: rotationToggle.checked,
+			tabCycleIntervalSeconds: rotationInterval.value,
+			webSocketURL: socketURL.value,
+			webSocketSecret: socketSecret.value,
+			webSocketIsActive: socketToggle.checked
+		}
+	}
+
+	statefulUIs.forEach((ui) => {
+		ui.onchange = (e) => {
+			queryTabBoss({
+				type: 'API',
+				method: 'set',
+				data: getStateFromUI()
+			});
+		}
 	});
 
 	chrome.tabs.getSelected(null, (tab) => {
@@ -48,36 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	select.onchange = (e) => {
 		chrome.tabs.update(parseInt(select.value), {active: true});
-	};
-
-	rotationToggle.onchange = (e) => {
-		queryTabBoss({
-			type: 'API',
-			method: 'setTabCycleActive',
-			props: {
-				isActive: rotationToggle.checked
-			}
-		});
-	};
-
-	rotationInterval.onchange = (e) => {
-		queryTabBoss({
-			type: 'API',
-			method: 'setTabCycleIntervalSeconds',
-			props: {
-				seconds: rotationInterval.value
-			}
-		});
-	};
-
-	socketURL.onchange = (e) => {
-		queryTabBoss({
-			type: 'API',
-			method: 'setTabBossWebSocketURL',
-			props: {
-				webSocketURL: socketURL.value
-			}
-		});
 	};
 
 });
